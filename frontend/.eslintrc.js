@@ -13,5 +13,14 @@ module.exports = {
   ],
   plugins: ['prettier'],
   // add your custom rules here
-  rules: {},
+  rules: {
+    // console メソッドを注意
+    'no-console': 1,
+    // 連続スペースの許可
+    'no-multi-spaces': 1,
+    // 再代入がない限り const を強制
+    'prefer-const': 2,
+    // 連続した空行を注意
+    'no-multiple-empty-lines': [1, { max: 3 }],
+  },
 }
