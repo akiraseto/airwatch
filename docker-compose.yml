@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  #  frontend:
+  #    build: frontend
+  #    container_name: frontend
+  #    ports:
+  #      - "3000:3000"
+  #    depends_on:
+  #      - backend
+
+  #  backend:
+  #    build: backend
+  #    container_name: backend
+  #    ports:
+  #      - "5000:5000"
+  #    volumes:
+  #      - ./backend:/root/backend
+  #    depends_on:
+  #      - db
+
+  sensors:
+    build: sensors
+    container_name: sensors
+    volumes:
+      - ./sensors:/root/sensors
+    environment:
+      INTERVAL: 300
+    depends_on:
+      - db
+
+  db:
+    image: mongo
+    container_name: db
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./container_data/configdb:/data/configdb
+      - ./container_data/db:/data/db

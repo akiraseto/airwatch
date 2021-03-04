@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 .idea/
+
+# add by myself
+sensors/container_data/db
