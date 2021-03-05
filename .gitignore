@@ -131,4 +131,5 @@ dmypy.json
 .idea/
 
 # add by myself
-sensors/container_data/db
+container_data/configdb
+container_data/db

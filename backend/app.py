@@ -1,16 +1,32 @@
-from flask import Flask
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Flask."""
+
+from flask import Flask, jsonify
+
+from models.daikin import Daikin
+
 app = Flask(__name__)
+daikin = Daikin()
+
 
 @app.route('/')
 def hello():
-    name = "Hello"
+    """デフォルトページ."""
+    name = "Let's connect with RESTFUL API"
     return name
+
 
 @app.route('/api/v1/daikin')
-def daikin():
-    name = "daikin"
-    return name
+def get_daikin_data():
+    """ダイキンデータAPI."""
+    # todo:Paramの取得
+    res = daikin.get_data()
 
-## おまじない
+    return jsonify(res)
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
+
+# todo:flaskでダイキンデータ取得
