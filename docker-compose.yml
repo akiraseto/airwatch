@@ -25,7 +25,7 @@ services:
     volumes:
       - ./sensors:/root/sensors
     environment:
-      INTERVAL: 300
+      BASIC_MINUTE: 5
     depends_on:
       - db
 
