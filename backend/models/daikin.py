@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """ダイキンセンサーモデル."""
 
+import datetime
+
 from db import MongoDB
 
 
@@ -12,10 +14,10 @@ class Daikin(MongoDB):
         """イニシャライザ."""
         super().__init__()
 
-        col_name = 'daikin'
-        self.db_col = self.db.get_collection(col_name)
+        db_name = 'daikin'
+        self.db = self.client[db_name]
 
-    def get_data(self, params=None, record_limit=100):
+    def get_data(self, params, record_limit=100):
         """
         データを取得.
 
@@ -31,53 +33,36 @@ class Daikin(MongoDB):
         list
             取得したデータリスト
         """
+        if params['period'] is None:
+            params['period'] = 'minute'
 
-        if params is None:
-            params = {}
-        if 'from' not in params:
-            params['from'] = ['2000-01-01 00:00']
-        if 'to' not in params:
-            params['to'] = ['2100-12-31 23:59']
+        if params['from'] is None:
+            params['from'] = datetime.datetime.now() - datetime.timedelta(
+                weeks=480)
+        else:
+            from_timestamp = int(params['from'])
+            params['from'] = datetime.datetime.fromtimestamp(from_timestamp)
+
+        if params['to'] is None:
+            params['to'] = datetime.datetime.now() + datetime.timedelta(
+                weeks=480)
+        else:
+            to_timestamp = int(params['to'])
+            params['to'] = datetime.datetime.fromtimestamp(to_timestamp)
 
         filter_list = []
         filter_list.append({"timestamp": {'$gte': params['from']}})
         filter_list.append({"timestamp": {'$lte': params['to']}})
 
-        item_list = [self.delete_object_id(item) for item in
-                     self.db_col.find(sort=[('timestamp', -1)]).limit(
-                         record_limit)]
+        db_col = self.db.get_collection(params['period'])
+
+        item_list = [item for item in db_col.find(sort=[('timestamp', -1)],
+                                                  projection={'_id': 0, },
+                                                  filter={'timestamp': {
+                                                      '$gte': params['from'],
+                                                      '$lt': params['to']
+                                                  }}).limit(record_limit)]
+
+        item_list.reverse()
 
         return item_list
-
-    def delete_object_id(self, dic):
-        dic.pop('_id')
-        return dic
-    #
-    # def get_data(self, params, record_limit):
-    #     """
-    #     データを取得.
-    #
-    #     Parameters
-    #     ----------
-    #     params : dict
-    #         検索パラメーター
-    #     record_limit: int
-    #         検索数
-    #
-    #     Returns
-    #     -------
-    #     dict
-    #         データベースから取得されたデータ辞書
-    #     """
-    #     res_dict = {}
-    #
-    #
-    #     filter_list = []
-    #     filter_list.append({"timestamp": {'$gte': params['from']}})
-    #     filter_list.append({"timestamp": {'$lte': params['to']}})
-    #
-    #     recs = self.db_col.find(projection=None, sort=[('timestamp', -1)],
-    #                             filter={'$and': filter_list}).limit(
-    #         record_limit)
-    #
-    #     return res_dict

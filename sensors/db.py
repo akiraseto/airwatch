@@ -11,6 +11,5 @@ class MongoDB:
     def __init__(self):
         """イニシャライザ."""
         db_host = 'db'
-        # db_host = 'localhost'
         db_port = 27017
         self.client = MongoClient(db_host, db_port)

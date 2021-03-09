@@ -10,10 +10,7 @@ class MongoDB:
 
     def __init__(self):
         """イニシャライザ."""
-        # db_host = 'db'
-        db_host = 'localhost'
+        db_host = 'db'
         db_port = 27017
-        db_name = 'airwatch'
 
-        client = MongoClient(db_host, db_port)
-        self.db = client[db_name]
+        self.client = MongoClient(db_host, db_port)

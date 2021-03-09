@@ -9,15 +9,15 @@ services:
   #    depends_on:
   #      - backend
 
-#  backend:
-#    build: backend
-#    container_name: backend
-#    ports:
-#      - "5000:5000"
-#    volumes:
-#      - ./backend:/root/backend
-#    depends_on:
-#      - db
+  backend:
+    build: backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/root/backend
+    depends_on:
+      - db
 
   sensors:
     build: sensors
@@ -26,6 +26,7 @@ services:
       - ./sensors:/root/sensors
     environment:
       BASIC_MINUTE: 5
+      DAIKIN_URI: http://192.168.0.10
     depends_on:
       - db
 

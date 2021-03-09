@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Flask."""
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 from models.daikin import Daikin
 
@@ -19,14 +19,26 @@ def hello():
 
 @app.route('/api/v1/daikin')
 def get_daikin_data():
-    """ダイキンデータAPI."""
-    # todo:Paramの取得
-    res = daikin.get_data()
+    """ダイキンデータAPI.
+
+    query:dict
+        from: int
+            timestamp
+        to: int
+            timestamp
+        period: string
+            5m, hour, day, week
+    """
+    params = {
+        'from': request.args.get('from'),
+        'to': request.args.get('to'),
+        'period': request.args.get('period'),
+    }
+
+    res = daikin.get_data(params)
 
     return jsonify(res)
 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
-
-# todo:flaskでダイキンデータ取得

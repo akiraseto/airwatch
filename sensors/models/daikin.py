@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ダイキン."""
 
+import os
 from datetime import datetime
 from io import StringIO
 
@@ -20,7 +21,7 @@ class Daikin(MongoDB):
 
         # センサー
         self.sensor = {
-            'uri': 'http://192.168.0.10',
+            'uri': os.environ['DAIKIN_URI'],
             'param': '/cleaner/get_sensor_info'
         }
 
@@ -29,7 +30,7 @@ class Daikin(MongoDB):
         self.db = self.client[db_name]
 
     def get_sensor(self):
-        """Get センサー.
+        """Get センサー値.
 
         Returns
         -------
