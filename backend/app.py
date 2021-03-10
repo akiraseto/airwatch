@@ -17,7 +17,7 @@ def hello():
     return name
 
 
-@app.route('/api/v1/daikin')
+@app.route('/v1/daikin')
 def get_daikin_data():
     """ダイキンデータAPI.
 
