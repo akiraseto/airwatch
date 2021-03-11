@@ -33,6 +33,7 @@ def get_daikin_data():
         'from': request.args.get('from'),
         'to': request.args.get('to'),
         'period': request.args.get('period'),
+        'limit': request.args.get('limit'),
     }
 
     res = daikin.get_data(params)

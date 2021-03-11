@@ -16,8 +16,8 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/root/backend
-    environment:
-      - DB_HOST=db
+    env_file:
+      - container.env
     depends_on:
       - db
 
@@ -26,10 +26,8 @@ services:
     container_name: sensors
     volumes:
       - ./sensors:/root/sensors
-    environment:
-      - BASIC_MINUTE=5
-      - DAIKIN_URI=http://192.168.0.10
-      - DB_HOST=db
+    env_file:
+      - container.env
     depends_on:
       - db
 

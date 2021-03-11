@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ダイキンセンサーモデル."""
 
+import os
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -19,7 +20,7 @@ class Daikin(MongoDB):
         db_name = 'daikin'
         self.db = self.client[db_name]
 
-    def get_data(self, params, record_limit=100):
+    def get_data(self, params):
         """
         データを取得.
 
@@ -27,8 +28,6 @@ class Daikin(MongoDB):
         ----------
         params : dict
             検索パラメーター
-        record_limit: int
-            検索数
 
         Returns
         -------
@@ -37,6 +36,16 @@ class Daikin(MongoDB):
         """
         if params['period'] is None:
             params['period'] = 'minute'
+        if params['limit'] is None:
+            if params['period'] == 'minute':
+                params['limit'] = round(60 * 24 / int(os.environ[
+                                                           'BASIC_MINUTE']))
+            elif params['period'] == 'hour':
+                params['limit'] = 168
+            else:
+                params['limit'] = 120
+        else:
+            params['limit'] = int(params['limit'])
 
         if params['from'] is None:
             params['from'] = datetime.now() - timedelta(weeks=480)
@@ -60,7 +69,7 @@ class Daikin(MongoDB):
             sort=[('timestamp', -1)],
             projection={'_id': 0, },
             filter={'timestamp': {'$gte': params['from'], '$lt': params['to']}}
-        ).limit(record_limit)]
+        ).limit(params['limit'])]
 
         item_list.reverse()
 
