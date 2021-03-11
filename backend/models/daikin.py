@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 """ダイキンセンサーモデル."""
 
-import datetime
+from datetime import datetime, timedelta
+
+import pandas as pd
 
 from db import MongoDB
 
@@ -30,25 +32,23 @@ class Daikin(MongoDB):
 
         Returns
         -------
-        list
-            取得したデータリスト
+        dict
+            取得したデータ辞書
         """
         if params['period'] is None:
             params['period'] = 'minute'
 
         if params['from'] is None:
-            params['from'] = datetime.datetime.now() - datetime.timedelta(
-                weeks=480)
+            params['from'] = datetime.now() - timedelta(weeks=480)
         else:
             from_timestamp = int(params['from'])
-            params['from'] = datetime.datetime.fromtimestamp(from_timestamp)
+            params['from'] = datetime.fromtimestamp(from_timestamp)
 
         if params['to'] is None:
-            params['to'] = datetime.datetime.now() + datetime.timedelta(
-                weeks=480)
+            params['to'] = datetime.now() + timedelta(weeks=480)
         else:
             to_timestamp = int(params['to'])
-            params['to'] = datetime.datetime.fromtimestamp(to_timestamp)
+            params['to'] = datetime.fromtimestamp(to_timestamp)
 
         filter_list = []
         filter_list.append({"timestamp": {'$gte': params['from']}})
@@ -56,13 +56,23 @@ class Daikin(MongoDB):
 
         db_col = self.db.get_collection(params['period'])
 
-        item_list = [item for item in db_col.find(sort=[('timestamp', -1)],
-                                                  projection={'_id': 0, },
-                                                  filter={'timestamp': {
-                                                      '$gte': params['from'],
-                                                      '$lt': params['to']
-                                                  }}).limit(record_limit)]
+        item_list = [self.change_datetime(item) for item in db_col.find(
+            sort=[('timestamp', -1)],
+            projection={'_id': 0, },
+            filter={'timestamp': {'$gte': params['from'], '$lt': params['to']}}
+        ).limit(record_limit)]
 
         item_list.reverse()
 
-        return item_list
+        df = pd.DataFrame(item_list)
+        result = df.to_dict(orient='list')
+
+        return result
+
+    def change_datetime(self, data):
+        """datetime(UTC)をJSTの文字列に変換."""
+        t_str = "%Y-%m-%d %H:%M:%S"
+        data['timestamp'] = (data['timestamp'] + timedelta(hours=9)).strftime(
+            t_str)
+
+        return data
