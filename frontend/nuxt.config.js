@@ -26,6 +26,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/typescript
     '@nuxt/typescript-build',
+    '@nuxtjs/moment',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -36,6 +37,10 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
   ],
+
+  // moment: {
+  //   locales: ['ja'],
+  // },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
