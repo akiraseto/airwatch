@@ -57,27 +57,90 @@ export default Vue.extend({
 
       daikinGraphData: [
         {
-          x: [
-            '2021-10-04 22:23:00',
-            '2021-11-04 22:23:00',
-            '2021-12-04 22:23:00',
-          ],
-          y: [1, 2, 3],
+          name: 'Temp',
           type: 'scatter',
+          x: [],
+          y: [],
+          apiKey: 'htemp',
+        },
+        {
+          name: 'Hum',
+          type: 'scatter',
+          yaxis: 'y2',
+          x: [],
+          y: [],
+          apiKey: 'hhum',
+        },
+        {
+          name: 'Odor',
+          type: 'bar',
+          yaxis: 'y3',
+          x: [],
+          y: [],
+          marker: {
+            color: 'rgb(158,225,177)',
+            opacity: 0.5,
+          },
+          apiKey: 'odor',
+        },
+        {
+          name: 'PM25',
+          type: 'bar',
+          yaxis: 'y3',
+          x: [],
+          y: [],
+          marker: {
+            color: 'rgb(212,225,158)',
+            opacity: 0.5,
+          },
+          apiKey: 'pm25',
+        },
+        {
+          name: 'Dust',
+          type: 'bar',
+          yaxis: 'y3',
+          // x: [],
+          // y: [],
+          marker: {
+            color: 'rgb(225,185,158)',
+            opacity: 0.5,
+          },
+          apiKey: 'dust',
         },
       ],
 
       daikinGraphLayout: {
+        margin: { t: 50, b: 50 },
         paper_bgcolor: 'rgba(245,246,249,1)',
         plot_bgcolor: 'rgba(245,246,249,1)',
-        showlegend: false,
+        showlegend: true,
         sizing: 'stretch',
-        font: { size: 14 },
-        xaxis: {},
-        yaxis: {
-          // range: [0, 10],
+        xaxis: {
+          domain: [0, 0.99],
+          type: 'date',
+          // tickformat: '%m/%d %H:%M',
         },
-        bargap: 0.05,
+        font: { size: 14 },
+        yaxis: {
+          title: 'Temp',
+          titlefont: { color: '#1f77b4' },
+          tickfont: { color: '#1f77b4' },
+        },
+        yaxis2: {
+          title: 'Hum',
+          titlefont: { color: '#ff7f0e' },
+          tickfont: { color: '#ff7f0e' },
+          anchor: 'free',
+          overlaying: 'y',
+          side: 'right',
+          position: 0.99,
+        },
+        yaxis3: {
+          visible: false,
+          range: [0, 10],
+          fixedrange: true,
+          overlaying: 'y',
+        },
       },
     }
   },
@@ -99,14 +162,10 @@ export default Vue.extend({
     const daikinGraphDiv = document.getElementById('daikin-graph')
 
     const _this = this as any
-    // _this.daikinAPIData.timestamp = _this.daikinAPIData.timestamp.map(function (
-    //   v: string
-    // ) {
-    //   return _this.$moment(v).format('YYYY-MM-DD HH:mm:ss')
-    // })
-
-    this.daikinGraphData[0].x = _this.daikinAPIData.timestamp
-    this.daikinGraphData[0].y = _this.daikinAPIData.htemp
+    this.daikinGraphData.forEach((value) => {
+      value.x = _this.daikinAPIData.timestamp
+      value.y = _this.daikinAPIData[value.apiKey]
+    })
 
     this.plotly.newPlot(
       daikinGraphDiv,
