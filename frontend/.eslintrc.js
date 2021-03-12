@@ -15,7 +15,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     // console メソッドを注意
-    'no-console': 1,
+    'no-console': 0,
     // 連続スペースの許可
     'no-multi-spaces': 1,
     // 再代入がない限り const を強制
