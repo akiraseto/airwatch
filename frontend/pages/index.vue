@@ -3,13 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-11">
         <Daikin />
-
-        <div class="my-1">
-          <h3>ラズパイセンサー</h3>
-          <pre>
-            ラズパイのグラフ5分
-          </pre>
-        </div>
+        <Gpio />
       </div>
     </div>
   </div>

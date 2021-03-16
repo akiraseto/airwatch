@@ -2,17 +2,32 @@
   <div class="my-3">
     <h3>{{ title }}</h3>
 
-    <b-list-group horizontal="sm" class="mt-3">
-      <b-list-group-item> Temp: {{ latestData['htemp'] }} </b-list-group-item>
-      <b-list-group-item> Hum: {{ latestData['hhum'] }} </b-list-group-item>
-      <b-list-group-item> Odor: {{ latestData['odor'] }} </b-list-group-item>
-      <b-list-group-item> PM25: {{ latestData['pm25'] }} </b-list-group-item>
-      <b-list-group-item> Dust: {{ latestData['dust'] }} </b-list-group-item>
-    </b-list-group>
-    <p class="small text-secondary">{{ latestData['timestamp'] }}</p>
+    <!--    <b-list-group horizontal="sm" class="mt-3">-->
+    <!--      <b-list-group-item> Temp: {{ latestData['htemp'] }} </b-list-group-item>-->
+    <!--      <b-list-group-item> Hum: {{ latestData['hhum'] }} </b-list-group-item>-->
+    <!--      <b-list-group-item> Odor: {{ latestData['odor'] }} </b-list-group-item>-->
+    <!--      <b-list-group-item> PM25: {{ latestData['pm25'] }} </b-list-group-item>-->
+    <!--      <b-list-group-item> Dust: {{ latestData['dust'] }} </b-list-group-item>-->
+    <!--    </b-list-group>-->
+    <!--    <p class="small text-secondary">{{ latestData['timestamp'] }}</p>-->
 
-    <div id="daikin-graph"></div>
-    <!-- todo:グラフ範囲変更する？(分、時、日、週間)-->
+    <pre>
+      CCS811
+        CO2濃度
+        TVOC(空気の汚れ)
+
+      BMP180
+        気温
+        大気圧センサー
+        高度
+        海面気圧
+
+      DHT11
+        気温
+        湿度
+    </pre>
+
+    <div id="gpio-graph"></div>
   </div>
 </template>
 
@@ -22,7 +37,7 @@ import Vue from 'vue'
 export default Vue.extend({
   data() {
     return {
-      title: 'ダイキン',
+      title: 'GPIOセンサー',
       plotly: {} as any,
 
       daikinAPIData: {
@@ -128,39 +143,39 @@ export default Vue.extend({
   computed: {
     latestData(): {} {
       return {
-        htemp: this.daikinAPIData.htemp.slice(-1)[0],
-        hhum: this.daikinAPIData.hhum.slice(-1)[0],
-        pm25: this.daikinAPIData.pm25.slice(-1)[0],
-        dust: this.daikinAPIData.dust.slice(-1)[0],
-        odor: this.daikinAPIData.odor.slice(-1)[0],
-        timestamp: this.daikinAPIData.timestamp.slice(-1)[0],
+        // htemp: this.daikinAPIData.htemp.slice(-1)[0],
+        // hhum: this.daikinAPIData.hhum.slice(-1)[0],
+        // pm25: this.daikinAPIData.pm25.slice(-1)[0],
+        // dust: this.daikinAPIData.dust.slice(-1)[0],
+        // odor: this.daikinAPIData.odor.slice(-1)[0],
+        // timestamp: this.daikinAPIData.timestamp.slice(-1)[0],
       }
     },
   },
   async mounted() {
     this.plotly = require('plotly.js-dist')
-    const daikinGraphDiv = document.getElementById('daikin-graph')
+    const gpioGraphDiv = document.getElementById('gpio-graph')
 
-    await this.$axios
-      .get('/api/v1/daikin')
-      .then((res) => {
-        this.daikinAPIData = res.data
-      })
-      .catch((err) => {
-        console.error('API ERROR: ', err)
-      })
-
-    this.daikinGraphData.forEach((value) => {
-      value.x = this.daikinAPIData.timestamp
-      // @ts-ignore
-      value.y = this.daikinAPIData[value.apiKey]
-    })
-
-    this.plotly.newPlot(
-      daikinGraphDiv,
-      this.daikinGraphData,
-      this.daikinGraphLayout
-    )
+    // await this.$axios
+    //   .get('/api/v1/daikin')
+    //   .then((res) => {
+    //     this.daikinAPIData = res.data
+    //   })
+    //   .catch((err) => {
+    //     console.error('API ERROR: ', err)
+    //   })
+    //
+    // this.daikinGraphData.forEach((value) => {
+    //   value.x = this.daikinAPIData.timestamp
+    //   // @ts-ignore
+    //   value.y = this.daikinAPIData[value.apiKey]
+    // })
+    //
+    // this.plotly.newPlot(
+    //   daikinGraphDiv,
+    //   this.daikinGraphData,
+    //   this.daikinGraphLayout
+    // )
   },
 })
 </script>
