@@ -32,10 +32,13 @@ services:
       - db
 
   db:
-    image: mongo
+    image: andresvidal/rpi3-mongodb3
     container_name: db
     ports:
       - "27017:27017"
+      - "28017:28017"
     volumes:
       - ./container_data/configdb:/data/configdb
       - ./container_data/db:/data/db
+    command: >
+      bash -c "rm /data/db/mongod.lock && mongod"
