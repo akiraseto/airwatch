@@ -74,7 +74,7 @@ class Daikin(MongoDB):
         item_list.reverse()
 
         df = pd.DataFrame(item_list)
-        result = df.to_dict(orient='list')
+        result = df.to_dict('list')
 
         return result
 

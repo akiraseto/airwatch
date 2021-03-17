@@ -1,12 +1,18 @@
-FROM python:3.8
+FROM resin/rpi-raspbian:jessie-20170111
 
-COPY Pipfile ./
-COPY Pipfile.lock ./
+RUN apt-get update
+RUN apt-get install -y  --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    gcc \
+    python3-numpy \
+    python3-pandas
 
-RUN pip install pipenv && \
-    pipenv install --system
+#RUN pip3 install --upgrade pip
+RUN pip3 install flask
+RUN pip3 install pymongo
 
 WORKDIR /root/backend
 ENV PYTHONPATH /root/backend
 
-CMD ["python", "app.py"]
+CMD ["python3", "app.py"]
