@@ -34,9 +34,9 @@ class Daikin(MongoDB):
         dict
             取得したデータ辞書
         """
-        if params['period'] is None:
+        if params['period'] is None or params['period'] == '':
             params['period'] = 'minute'
-        if params['limit'] is None:
+        if params['limit'] is None or params['limit'] == '':
             if params['period'] == 'minute':
                 params['limit'] = round(60 * 24 / int(os.environ[
                                                            'BASIC_MINUTE']))
@@ -47,13 +47,13 @@ class Daikin(MongoDB):
         else:
             params['limit'] = int(params['limit'])
 
-        if params['from'] is None:
+        if params['from'] is None or params['from'] == '':
             params['from'] = datetime.now() - timedelta(weeks=480)
         else:
             from_timestamp = int(params['from'])
             params['from'] = datetime.fromtimestamp(from_timestamp)
 
-        if params['to'] is None:
+        if params['to'] is None or params['to'] == '':
             params['to'] = datetime.now() + timedelta(weeks=480)
         else:
             to_timestamp = int(params['to'])
