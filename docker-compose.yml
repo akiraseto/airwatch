@@ -26,6 +26,9 @@ services:
     container_name: sensors
     volumes:
       - ./sensors:/root/sensors
+    devices:
+      - "/dev/i2c-1:/dev/i2c-1"
+      - "/dev/gpiomem:/dev/gpiomem"
     env_file:
       - container.env
     depends_on:
