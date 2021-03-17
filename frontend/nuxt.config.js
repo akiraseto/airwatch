@@ -1,4 +1,7 @@
 export default {
+  server: {
+    host: '0.0.0.0', // デフォルト: localhost
+  },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'airwatch',
@@ -49,7 +52,8 @@ export default {
 
   proxy: {
     '/api/': {
-      target: 'http://localhost:5000',
+      // target: 'http://localhost:5000',
+      target: 'http://192.168.3.62:5000',
       pathRewrite: { '^/api/': '' },
     },
   },
