@@ -10,7 +10,7 @@ from db import MongoDB
 
 
 class Bmp(MongoDB):
-    """Daikin IO."""
+    """BMP180 IO."""
 
     def __init__(self):
         """イニシャライザ."""
