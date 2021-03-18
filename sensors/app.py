@@ -6,10 +6,11 @@ import datetime
 import logging
 import os
 import time
+from collections import defaultdict
 
 from models.bmp import Bmp
-from models.dht import Dht
 from models.daikin import Daikin
+from models.dht import Dht
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
@@ -20,9 +21,7 @@ if __name__ == '__main__':
 
     minutes_time = int(os.environ['BASIC_MINUTE'])
 
-    latest_daikin_data = {}
-    latest_bmp_data = {}
-    latest_dht_data = {}
+    latest_data = defaultdict(dict)
     periods = ['minute', 'hour', 'day', 'week']
     delta_list = {}
     delta_list['minute'] = datetime.timedelta(minutes=1)
@@ -30,25 +29,11 @@ if __name__ == '__main__':
     delta_list['day'] = datetime.timedelta(days=1)
     delta_list['week'] = datetime.timedelta(weeks=1)
 
-    # 初期化:DBにデータ無ければ即インサート
-    data_daikin = daikin.get_sensor()
-    data_bmp = bmp.get_sensor()
-    data_dht = dht.get_sensor()
+    # 最新DBデータ取得
     for period in periods:
-        latest_daikin_data[period] = daikin.find_latest(period)
-        if latest_daikin_data[period] is None:
-            daikin.insert_data(period, data_daikin)
-            latest_daikin_data[period] = data_daikin
-
-        latest_bmp_data[period] = bmp.find_latest(period)
-        if latest_bmp_data[period] is None:
-            bmp.insert_data(period, data_bmp)
-            latest_bmp_data[period] = data_bmp
-
-        latest_dht_data[period] = dht.find_latest(period)
-        if latest_dht_data[period] is None:
-            dht.insert_data(period, data_dht)
-            latest_dht_data[period] = data_dht
+        latest_data['daikin'][period] = daikin.find_latest(period)
+        latest_data['bmp'][period] = bmp.find_latest(period)
+        latest_data['dht'][period] = dht.find_latest(period)
 
     while True:
         now = datetime.datetime.now()
@@ -60,19 +45,25 @@ if __name__ == '__main__':
         logging.info('dht:{}'.format(data_dht))
 
         for period in periods:
-            if now >= latest_daikin_data[period]['timestamp'] \
+            if latest_data['daikin'][period] is None or \
+                    now >= latest_data['daikin'][period]['timestamp'] \
                     + delta_list[period]:
-                daikin.insert_data(period, data_daikin)
-                latest_daikin_data[period] = data_daikin
+                if data_daikin is not None:
+                    daikin.insert_data(period, data_daikin)
+                    latest_data['daikin'][period] = data_daikin
 
-            if now >= latest_bmp_data[period]['timestamp'] \
+            if latest_data['bmp'][period] is None or \
+                    now >= latest_data['bmp'][period]['timestamp'] \
                     + delta_list[period]:
-                bmp.insert_data(period, data_bmp)
-                latest_bmp_data[period] = data_bmp
+                if data_bmp is not None:
+                    bmp.insert_data(period, data_bmp)
+                    latest_data['bmp'][period] = data_bmp
 
-            if now >= latest_dht_data[period]['timestamp'] \
+            if latest_data['dht'][period] is None or \
+                    now >= latest_data['dht'][period]['timestamp'] \
                     + delta_list[period]:
-                dht.insert_data(period, data_dht)
-                latest_dht_data[period] = data_dht
+                if data_dht is not None:
+                    dht.insert_data(period, data_dht)
+                    latest_data['dht'][period] = data_dht
 
         time.sleep(minutes_time * 60)
