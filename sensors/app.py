@@ -5,22 +5,21 @@
 import datetime
 import logging
 import os
-
 import time
 
+from models.bmp import Bmp
 from models.daikin import Daikin
-from models.gpio import Gpio
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     daikin = Daikin()
-    gpio = Gpio()
+    bmp = Bmp()
 
     minutes_time = int(os.environ['BASIC_MINUTE'])
 
-    latest_record = {}
-    latest_record_gpio = {}
+    latest_daikin_data = {}
+    latest_bmp_data = {}
     periods = ['minute', 'hour', 'day', 'week']
     delta_list = {}
     delta_list['minute'] = datetime.timedelta(minutes=1)
@@ -30,33 +29,34 @@ if __name__ == '__main__':
 
     # 初期化:DBにデータ無ければ即インサート
     data_daikin = daikin.get_sensor()
-    data_gpio = gpio.get_sensor()
+    data_bmp = bmp.get_sensor()
     for period in periods:
-        latest_record[period] = daikin.find_latest(period)
-        if latest_record[period] is None:
+        latest_daikin_data[period] = daikin.find_latest(period)
+        if latest_daikin_data[period] is None:
             daikin.insert_data(period, data_daikin)
-            latest_record[period] = data_daikin
+            latest_daikin_data[period] = data_daikin
 
-        latest_record_gpio[period] = gpio.find_latest(period)
-        if latest_record_gpio[period] is None:
-            gpio.insert_data(period, data_gpio)
-            latest_record[period] = data_gpio
+        latest_bmp_data[period] = bmp.find_latest(period)
+        if latest_bmp_data[period] is None:
+            bmp.insert_data(period, data_bmp)
+            latest_bmp_data[period] = data_bmp
 
     while True:
         now = datetime.datetime.now()
         data_daikin = daikin.get_sensor()
-        data_gpio = gpio.get_sensor()
+        data_bmp = bmp.get_sensor()
         logging.info('daikin:{}'.format(data_daikin))
-        logging.info('gpio:{}'.format(data_gpio))
+        logging.info('bmp:{}'.format(data_bmp))
 
         for period in periods:
-            if now >= latest_record[period]['timestamp'] + delta_list[period]:
-                daikin.insert_data(period, data_daikin)
-                latest_record[period] = data_daikin
-
-            if now >= latest_record_gpio[period]['timestamp'] \
+            if now >= latest_daikin_data[period]['timestamp'] \
                     + delta_list[period]:
-                gpio.insert_data(period, data_gpio)
-                latest_record_gpio[period] = data_gpio
+                daikin.insert_data(period, data_daikin)
+                latest_daikin_data[period] = data_daikin
+
+            if now >= latest_bmp_data[period]['timestamp'] \
+                    + delta_list[period]:
+                bmp.insert_data(period, data_bmp)
+                latest_bmp_data[period] = data_bmp
 
         time.sleep(minutes_time * 60)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""ダイキン."""
+"""BMP 室温気圧センサー."""
 
 from datetime import datetime
 
@@ -9,7 +9,7 @@ import Adafruit_BMP.BMP085 as BMP085
 from db import MongoDB
 
 
-class Gpio(MongoDB):
+class Bmp(MongoDB):
     """Daikin IO."""
 
     def __init__(self):
@@ -20,7 +20,7 @@ class Gpio(MongoDB):
         self.sensor = BMP085.BMP085()
 
         # MongoDB
-        db_name = 'gpio'
+        db_name = 'bmp'
         self.db = self.client[db_name]
 
     def get_sensor(self):
