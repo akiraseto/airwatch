@@ -10,7 +10,7 @@ from pymongo import MongoClient
 
 
 class MongoDB:
-    """ダイキンセンサーDB."""
+    """センサーDB."""
 
     def __init__(self):
         """イニシャライザ."""
@@ -22,7 +22,7 @@ class MongoDB:
 
     def get_data(self, params):
         """
-        データを取得.
+        DBデータを取得.
 
         Parameters
         ----------
@@ -62,10 +62,6 @@ class MongoDB:
         else:
             to_timestamp = int(params['to'])
             params['to'] = datetime.fromtimestamp(to_timestamp)
-
-        # filter_list = []
-        # filter_list.append({"timestamp": {'$gte': params['from']}})
-        # filter_list.append({"timestamp": {'$lte': params['to']}})
 
         db_col = self.db.get_collection(params['period'])
 
