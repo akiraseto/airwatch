@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """DHT 温度湿度センサー."""
 
+import logging
 from datetime import datetime
 
 import Adafruit_DHT as DHT
@@ -41,5 +42,5 @@ class Dht(MongoDB):
             }
 
         except Exception as e:
-            print('Error:', e)
+            logging.error('SensorError: {}'.format(e))
             return None

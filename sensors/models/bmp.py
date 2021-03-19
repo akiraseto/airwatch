@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """BMP 室温気圧センサー."""
 
+import logging
 from datetime import datetime
 
 import Adafruit_BMP.BMP085 as BMP085
@@ -42,5 +43,5 @@ class Bmp(MongoDB):
             }
 
         except Exception as e:
-            print('Error:', e)
+            logging.error('SensorError: {}'.format(e))
             return None

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ダイキン."""
 
+import logging
 import os
 from datetime import datetime
 from io import StringIO
@@ -57,5 +58,5 @@ class Daikin(MongoDB):
             return res_data
 
         except Exception as e:
-            print('Error:', e)
+            logging.error('SensorError: {}'.format(e))
             return None
