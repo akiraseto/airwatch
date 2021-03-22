@@ -8,24 +8,14 @@
       <b-list-group-item>
         Press: {{ latestData['press'] }}hPa
       </b-list-group-item>
+      <b-list-group-item> CO2: {{ latestData['co2'] }}ppm </b-list-group-item>
+      <b-list-group-item> TVOC: {{ latestData['tvoc'] }}ppb </b-list-group-item>
+      <b-list-group-item>
+        Ethanol: {{ latestData['ethanol'] }}ppm
+      </b-list-group-item>
+      <b-list-group-item> H2: {{ latestData['h2'] }}ppm </b-list-group-item>
     </b-list-group>
     <p class="small text-secondary">{{ latestData['timestamp'] }}</p>
-
-    <pre>
-      CCS811
-        CO2濃度
-        TVOC(空気の汚れ)
-
-      BMP180
-        気温
-        大気圧センサー
-        高度
-        海面気圧
-
-      DHT11
-        気温
-        湿度
-    </pre>
 
     <div id="gpio-graph"></div>
   </div>
@@ -49,6 +39,12 @@ export default Vue.extend({
         dht: {
           humi: [],
           temp: [],
+        },
+        sgp: {
+          co2: [],
+          tvoc: [],
+          ethanol: [],
+          h2: [],
         },
       },
 
@@ -152,6 +148,10 @@ export default Vue.extend({
           2,
         humi: this.gpioAPIData.dht.humi.slice(-1)[0],
         press: this.gpioAPIData.bmp.press.slice(-1)[0] / 100,
+        co2: this.gpioAPIData.sgp.co2.slice(-1)[0],
+        tvoc: this.gpioAPIData.sgp.tvoc.slice(-1)[0],
+        ethanol: this.gpioAPIData.sgp.ethanol.slice(-1)[0],
+        h2: this.gpioAPIData.sgp.h2.slice(-1)[0],
         timestamp: this.gpioAPIData.bmp.timestamp.slice(-1)[0],
       }
     },
