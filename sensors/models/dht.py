@@ -39,8 +39,8 @@ class Dht(MongoDB):
         try:
             humi, temp = DHT.read_retry(DHT.DHT11, self.PIN)
             return {
-                'temp': int(temp),
-                'humi': int(humi),
+                'temp': float(temp),
+                'humi': float(humi),
                 'timestamp': datetime.now()
             }
 

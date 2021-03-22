@@ -44,10 +44,10 @@ class Sgp(MongoDB):
             h2, ethanol = self.sensor.raw_measure()
 
             return {
-                'co2': int(co2),
-                'tvoc': int(tvoc),
-                'h2': int(h2),
-                'ethanol': int(ethanol),
+                'co2': float(co2),
+                'tvoc': float(tvoc),
+                'h2': float(h2),
+                'ethanol': float(ethanol),
                 'timestamp': datetime.now()
             }
 
