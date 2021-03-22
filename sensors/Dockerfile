@@ -14,6 +14,8 @@ RUN git clone https://github.com/adafruit/Adafruit_Python_DHT.git && \
     cd  /Adafruit_Python_DHT && \
     python setup.py install
 
+RUN pip install adafruit-circuitpython-sgp30
+
 WORKDIR /root/sensors
 ENV PYTHONPATH /root/sensors
 

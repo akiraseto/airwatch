@@ -11,6 +11,7 @@ from collections import defaultdict
 from models.bmp import Bmp
 from models.daikin import Daikin
 from models.dht import Dht
+from models.sgp import Sgp
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
@@ -18,6 +19,7 @@ if __name__ == '__main__':
     daikin = Daikin()
     bmp = Bmp()
     dht = Dht()
+    sgp = Sgp()
 
     minutes_time = int(os.environ['BASIC_MINUTE'])
 
@@ -34,15 +36,18 @@ if __name__ == '__main__':
         latest_data['daikin'][period] = daikin.find_latest(period)
         latest_data['bmp'][period] = bmp.find_latest(period)
         latest_data['dht'][period] = dht.find_latest(period)
+        latest_data['sgp'][period] = sgp.find_latest(period)
 
     while True:
         now = datetime.datetime.now()
         data_daikin = daikin.get_sensor()
         data_bmp = bmp.get_sensor()
         data_dht = dht.get_sensor()
+        data_sgp = sgp.get_sensor()
         logging.info('daikin:{}'.format(data_daikin))
         logging.info('bmp:{}'.format(data_bmp))
         logging.info('dht:{}'.format(data_dht))
+        logging.info('sgp:{}'.format(data_sgp))
 
         for period in periods:
             if latest_data['daikin'][period] is None or \
@@ -65,5 +70,12 @@ if __name__ == '__main__':
                 if data_dht is not None:
                     dht.insert_data(period, data_dht)
                     latest_data['dht'][period] = data_dht
+
+            if latest_data['sgp'][period] is None or \
+                    now >= latest_data['sgp'][period]['timestamp'] \
+                    + delta_list[period]:
+                if data_sgp is not None:
+                    sgp.insert_data(period, data_sgp)
+                    latest_data['sgp'][period] = data_sgp
 
         time.sleep(minutes_time * 60)
