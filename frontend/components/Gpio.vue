@@ -2,14 +2,14 @@
   <div class="my-3">
     <h3>{{ title }}</h3>
 
-    <!--    <b-list-group horizontal="sm" class="mt-3">-->
-    <!--      <b-list-group-item> Temp: {{ latestData['htemp'] }} </b-list-group-item>-->
-    <!--      <b-list-group-item> Hum: {{ latestData['hhum'] }} </b-list-group-item>-->
-    <!--      <b-list-group-item> Odor: {{ latestData['odor'] }} </b-list-group-item>-->
-    <!--      <b-list-group-item> PM25: {{ latestData['pm25'] }} </b-list-group-item>-->
-    <!--      <b-list-group-item> Dust: {{ latestData['dust'] }} </b-list-group-item>-->
-    <!--    </b-list-group>-->
-    <!--    <p class="small text-secondary">{{ latestData['timestamp'] }}</p>-->
+    <b-list-group horizontal="sm" class="mt-3">
+      <b-list-group-item> Temp: {{ latestData['temp'] }}°C </b-list-group-item>
+      <b-list-group-item> Hum: {{ latestData['humi'] }}% </b-list-group-item>
+      <b-list-group-item>
+        Press: {{ latestData['press'] }}hPa
+      </b-list-group-item>
+    </b-list-group>
+    <p class="small text-secondary">{{ latestData['timestamp'] }}</p>
 
     <pre>
       CCS811
@@ -40,13 +40,16 @@ export default Vue.extend({
       title: 'GPIOセンサー',
       plotly: {} as any,
 
-      daikinAPIData: {
-        htemp: [],
-        hhum: [],
-        pm25: [],
-        dust: [],
-        odor: [],
-        timestamp: [],
+      gpioAPIData: {
+        bmp: {
+          temp: [],
+          timestamp: [],
+          press: [],
+        },
+        dht: {
+          humi: [],
+          temp: [],
+        },
       },
 
       daikinGraphData: [
@@ -143,12 +146,13 @@ export default Vue.extend({
   computed: {
     latestData(): {} {
       return {
-        // htemp: this.daikinAPIData.htemp.slice(-1)[0],
-        // hhum: this.daikinAPIData.hhum.slice(-1)[0],
-        // pm25: this.daikinAPIData.pm25.slice(-1)[0],
-        // dust: this.daikinAPIData.dust.slice(-1)[0],
-        // odor: this.daikinAPIData.odor.slice(-1)[0],
-        // timestamp: this.daikinAPIData.timestamp.slice(-1)[0],
+        temp:
+          (this.gpioAPIData.bmp.temp.slice(-1)[0] +
+            this.gpioAPIData.dht.temp.slice(-1)[0]) /
+          2,
+        humi: this.gpioAPIData.dht.humi.slice(-1)[0],
+        press: this.gpioAPIData.bmp.press.slice(-1)[0] / 100,
+        timestamp: this.gpioAPIData.bmp.timestamp.slice(-1)[0],
       }
     },
   },
@@ -156,19 +160,19 @@ export default Vue.extend({
     this.plotly = require('plotly.js-dist')
     const gpioGraphDiv = document.getElementById('gpio-graph')
 
-    // await this.$axios
-    //   .get('/api/v1/daikin')
-    //   .then((res) => {
-    //     this.daikinAPIData = res.data
-    //   })
-    //   .catch((err) => {
-    //     console.error('API ERROR: ', err)
-    //   })
+    await this.$axios
+      .get('/api/v1/gpio')
+      .then((res) => {
+        this.gpioAPIData = res.data
+      })
+      .catch((err) => {
+        console.error('API ERROR: ', err)
+      })
     //
     // this.daikinGraphData.forEach((value) => {
-    //   value.x = this.daikinAPIData.timestamp
+    //   value.x = this.gpioAPIData.timestamp
     //   // @ts-ignore
-    //   value.y = this.daikinAPIData[value.apiKey]
+    //   value.y = this.gpioAPIData[value.apiKey]
     // })
     //
     // this.plotly.newPlot(
