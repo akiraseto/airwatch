@@ -24,6 +24,9 @@ class Dht(MongoDB):
         db_name = 'dht'
         self.db = self.client[db_name]
 
+    def __str__(self):
+        return "dht"
+
     def get_sensor(self):
         """Get センサー値.
 

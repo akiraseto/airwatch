@@ -27,6 +27,9 @@ class Sgp(MongoDB):
         db_name = 'sgp'
         self.db = self.client[db_name]
 
+    def __str__(self):
+        return "sgp"
+
     def get_sensor(self):
         """Get センサー値.
 

@@ -24,6 +24,9 @@ class Bmp(MongoDB):
         db_name = 'bmp'
         self.db = self.client[db_name]
 
+    def __str__(self):
+        return "bmp"
+
     def get_sensor(self):
         """Get センサー値.
 

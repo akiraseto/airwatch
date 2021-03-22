@@ -30,6 +30,9 @@ class Daikin(MongoDB):
         db_name = 'daikin'
         self.db = self.client[db_name]
 
+    def __str__(self):
+        return "daikin"
+
     def get_sensor(self):
         """Get センサー値.
 
