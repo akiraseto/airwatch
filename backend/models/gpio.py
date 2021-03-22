@@ -12,20 +12,19 @@ class Gpio(MongoDB):
         """イニシャライザ."""
         super().__init__()
 
-        self.db_name_bmp = 'bmp'
-        self.db_name_dht = 'dht'
         self.db = None
+        self.db_name_list = [
+            'bmp',
+            'dht',
+            'sgp',
+        ]
 
-    def get_bmp_data(self, params):
-        """BMP180のデータを取得."""
-        self.db = self.client[self.db_name_bmp]
+    def get_sensors_data(self, params):
+        """sensor群のデータを一括取得."""
+        res = {}
 
-        res = self.get_data(params)
-        return res
+        for db_name in self.db_name_list:
+            self.db = self.client[db_name]
+            res[db_name] = self.get_data(params)
 
-    def get_dht_data(self, params):
-        """DHTのデータを取得."""
-        self.db = self.client[self.db_name_dht]
-
-        res = self.get_data(params)
         return res

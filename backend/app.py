@@ -62,11 +62,7 @@ def get_gpio_data():
         'limit': request.args.get('limit'),
     }
 
-    res = {
-        'bmp': gpio.get_bmp_data(params),
-        'dht': gpio.get_dht_data(params),
-    }
-
+    res = gpio.get_sensors_data(params)
     return jsonify(res)
 
 
