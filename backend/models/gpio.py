@@ -25,6 +25,12 @@ class Gpio(MongoDB):
 
         for db_name in self.db_name_list:
             self.db = self.client[db_name]
-            res[db_name] = self.get_data(params)
+            data = self.get_data(params)
+            res.update(data)
+
+        res['temp'] = [round((x + y) / 2, 1) for (x, y) in
+                       zip(res['btemp'], res['dtemp'])]
+        res.pop('btemp')
+        res.pop('dtemp')
 
         return res

@@ -38,9 +38,9 @@ class Bmp(MongoDB):
         """
         try:
             return {
-                'temp': float(self.sensor.read_temperature()),
-                'press': float(self.sensor.read_pressure()),
-                'alti': round(float(self.sensor.read_altitude()), 1),
+                'btemp': float(self.sensor.read_temperature()),
+                'press': round(float(self.sensor.read_pressure()) / 100, 1),
+                'alti': round(float(self.sensor.read_altitude()) / 100, 1),
                 'sealev': float(self.sensor.read_sealevel_pressure()),
                 'timestamp': datetime.now()
             }

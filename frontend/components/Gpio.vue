@@ -31,30 +31,23 @@ export default Vue.extend({
       plotly: {} as any,
 
       gpioAPIData: {
-        bmp: {
-          temp: [],
-          timestamp: [],
-          press: [],
-        },
-        dht: {
-          humi: [],
-          temp: [],
-        },
-        sgp: {
-          co2: [],
-          tvoc: [],
-          ethanol: [],
-          h2: [],
-        },
+        temp: [],
+        humi: [],
+        press: [],
+        co2: [],
+        tvoc: [],
+        ethanol: [],
+        h2: [],
+        timestamp: [],
       },
 
-      daikinGraphData: [
+      weatherGraphData: [
         {
           name: 'Temp',
           type: 'scatter',
           x: [],
           y: [],
-          apiKey: 'htemp',
+          apiKey: 'temp',
         },
         {
           name: 'Hum',
@@ -62,12 +55,30 @@ export default Vue.extend({
           yaxis: 'y2',
           x: [],
           y: [],
-          apiKey: 'hhum',
+          apiKey: 'humi',
         },
         {
-          name: 'Odor',
-          type: 'bar',
+          name: 'Press',
+          type: 'scatter',
           yaxis: 'y3',
+          x: [],
+          y: [],
+          apiKey: 'press',
+        },
+        {
+          name: 'CO2',
+          type: 'scatter',
+          yaxis: 'y4',
+          x: [],
+          y: [],
+          hoverinfo: 'none',
+          apiKey: 'co2',
+        },
+
+        {
+          name: 'TVOC',
+          type: 'bar',
+          yaxis: 'y5',
           x: [],
           y: [],
           hoverinfo: 'none',
@@ -75,33 +86,7 @@ export default Vue.extend({
             color: 'rgb(158,225,177)',
             opacity: 0.5,
           },
-          apiKey: 'odor',
-        },
-        {
-          name: 'PM25',
-          type: 'bar',
-          yaxis: 'y3',
-          x: [],
-          y: [],
-          hoverinfo: 'none',
-          marker: {
-            color: 'rgb(212,225,158)',
-            opacity: 0.5,
-          },
-          apiKey: 'pm25',
-        },
-        {
-          name: 'Dust',
-          type: 'bar',
-          yaxis: 'y3',
-          x: [],
-          y: [],
-          hoverinfo: 'none',
-          marker: {
-            color: 'rgb(225,185,158)',
-            opacity: 0.5,
-          },
-          apiKey: 'dust',
+          apiKey: 'tvoc',
         },
       ],
 
@@ -132,9 +117,20 @@ export default Vue.extend({
         },
         yaxis3: {
           visible: false,
-          range: [0, 10],
-          fixedrange: true,
           overlaying: 'y',
+          fixedrange: true,
+        },
+        yaxis4: {
+          visible: false,
+          overlaying: 'y',
+          fixedrange: true,
+          range: [400, 3000],
+        },
+        yaxis5: {
+          visible: false,
+          overlaying: 'y',
+          fixedrange: true,
+          rangemode: 'nonnegative',
         },
       },
     }
@@ -142,17 +138,14 @@ export default Vue.extend({
   computed: {
     latestData(): {} {
       return {
-        temp:
-          (this.gpioAPIData.bmp.temp.slice(-1)[0] +
-            this.gpioAPIData.dht.temp.slice(-1)[0]) /
-          2,
-        humi: this.gpioAPIData.dht.humi.slice(-1)[0],
-        press: this.gpioAPIData.bmp.press.slice(-1)[0] / 100,
-        co2: this.gpioAPIData.sgp.co2.slice(-1)[0],
-        tvoc: this.gpioAPIData.sgp.tvoc.slice(-1)[0],
-        ethanol: this.gpioAPIData.sgp.ethanol.slice(-1)[0],
-        h2: this.gpioAPIData.sgp.h2.slice(-1)[0],
-        timestamp: this.gpioAPIData.bmp.timestamp.slice(-1)[0],
+        temp: this.gpioAPIData.temp.slice(-1)[0],
+        humi: this.gpioAPIData.humi.slice(-1)[0],
+        press: this.gpioAPIData.press.slice(-1)[0],
+        co2: this.gpioAPIData.co2.slice(-1)[0],
+        tvoc: this.gpioAPIData.tvoc.slice(-1)[0],
+        ethanol: this.gpioAPIData.ethanol.slice(-1)[0],
+        h2: this.gpioAPIData.h2.slice(-1)[0],
+        timestamp: this.gpioAPIData.timestamp.slice(-1)[0],
       }
     },
   },
@@ -168,18 +161,25 @@ export default Vue.extend({
       .catch((err) => {
         console.error('API ERROR: ', err)
       })
-    //
-    // this.daikinGraphData.forEach((value) => {
-    //   value.x = this.gpioAPIData.timestamp
-    //   // @ts-ignore
-    //   value.y = this.gpioAPIData[value.apiKey]
-    // })
-    //
-    // this.plotly.newPlot(
-    //   daikinGraphDiv,
-    //   this.daikinGraphData,
-    //   this.daikinGraphLayout
-    // )
+
+    this.weatherGraphData.forEach((value) => {
+      value.x = this.gpioAPIData.timestamp
+      // @ts-ignore
+      value.y = this.gpioAPIData[value.apiKey]
+    })
+
+    this.plotly.newPlot(
+      gpioGraphDiv,
+      this.weatherGraphData,
+      this.daikinGraphLayout
+    )
+
+    //  todo:追加でaxiosでminuteから4700個取得し、グラフを非同期に更新
+    //  todo:hourのグラフを描画できるボタン用意、limitなしで全データ
+    //  todo:ヘッダーの不要なボタン削除
+    //  todo:コンパイルして、ラズパイのコンテナでSSRで動くか確認
+
+    //  todo:光センサー追加する？
   },
 })
 </script>
