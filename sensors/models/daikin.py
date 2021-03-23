@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ダイキン."""
 
+import logging
 import os
 from datetime import datetime
 from io import StringIO
@@ -29,6 +30,9 @@ class Daikin(MongoDB):
         db_name = 'daikin'
         self.db = self.client[db_name]
 
+    def __str__(self):
+        return "daikin"
+
     def get_sensor(self):
         """Get センサー値.
 
@@ -38,60 +42,24 @@ class Daikin(MongoDB):
             各センサー値
 
         """
-        res = requests.get(self.sensor['uri'] + self.sensor['param'])
-        list_split_data = res.text.split(',')
+        try:
+            res = requests.get(self.sensor['uri'] + self.sensor['param'])
+            list_split_data = res.text.split(',')
 
-        res_data = {}
-        for val in list_split_data:
-            val = StringIO(val)
-            val.seek(0)
-            parsed_val = dotenv_values(stream=val)
+            res_data = {}
+            for val in list_split_data:
+                val = StringIO(val)
+                val.seek(0)
+                parsed_val = dotenv_values(stream=val)
 
-            if 'ret' not in parsed_val:
-                for index, value in parsed_val.items():
-                    res_data[index] = float(value)
+                if 'ret' not in parsed_val:
+                    for index, value in parsed_val.items():
+                        res_data[index] = float(value)
 
-        res_data['timestamp'] = datetime.now()
+            res_data['timestamp'] = datetime.now()
 
-        return res_data
+            return res_data
 
-    def insert_data(self, periods, data):
-        """
-        センサーデータを保存.
-
-        Parameters
-        ----------
-        periods : str
-            'minute','hour', 'day', 'week'
-        data : dict
-            センサーデータ
-
-        Returns
-        -------
-        None
-
-        """
-        db_col = self.db.get_collection(periods)
-        db_col.insert_one(data)
-
-    def find_latest(self, periods):
-        """
-        DBから最新データを1つ取得.
-
-        Parameters
-        ----------
-        periods : str
-            'minute','hour', 'day', 'week'
-        data : dict
-            センサーデータ
-
-        Returns
-        -------
-        dict
-            最新データ1つ
-
-        """
-        db_col = self.db.get_collection(periods)
-        res = db_col.find_one(sort=[('timestamp', -1)],
-                              projection={'_id': 0, })
-        return res
+        except Exception as e:
+            logging.error('SensorError: {}'.format(e))
+            return None

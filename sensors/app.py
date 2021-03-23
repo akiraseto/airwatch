@@ -5,19 +5,25 @@
 import datetime
 import logging
 import os
+from collections import defaultdict
 
 import time
 
+from models.bmp import Bmp
 from models.daikin import Daikin
+from models.dht import Dht
+from models.sgp import Sgp
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    daikin = Daikin()
+    sensors = [
+        Daikin(),
+        Bmp(),
+        Dht(),
+        Sgp()
+    ]
 
-    minutes_time = int(os.environ['BASIC_MINUTE'])
-
-    latest_record = {}
     periods = ['minute', 'hour', 'day', 'week']
     delta_list = {}
     delta_list['minute'] = datetime.timedelta(minutes=1)
@@ -25,22 +31,31 @@ if __name__ == '__main__':
     delta_list['day'] = datetime.timedelta(days=1)
     delta_list['week'] = datetime.timedelta(weeks=1)
 
-    # 初期化:DBにデータ無ければ即インサート
-    data = daikin.get_sensor()
+    # 最新DBデータ取得
+    latest_data = defaultdict(dict)
     for period in periods:
-        latest_record[period] = daikin.find_latest(period)
-        if latest_record[period] is None:
-            daikin.insert_data(period, data)
-            latest_record[period] = data
+        for sensor in sensors:
+            name = sensor.__str__()
+            latest_data[name][period] = sensor.find_latest(period)
 
+    minutes_time = int(os.environ['BASIC_MINUTE'])
     while True:
         now = datetime.datetime.now()
-        data = daikin.get_sensor()
-        logging.info('daikin:{}'.format(data))
+        data_sensors = {}
+        for sensor in sensors:
+            name = sensor.__str__()
+            data = sensor.get_sensor()
+            data_sensors[name] = data
+            logging.info('{}:{}'.format(name, data))
 
         for period in periods:
-            if now >= latest_record[period]['timestamp'] + delta_list[period]:
-                daikin.insert_data(period, data)
-                latest_record[period] = data
+            for sensor in sensors:
+                name = sensor.__str__()
+                if latest_data[name][period] is None or \
+                        now >= latest_data[name][period]['timestamp'] \
+                        + delta_list[period]:
+                    if data_sensors[name] is not None:
+                        sensor.insert_data(period, data_sensors[name])
+                        latest_data[name][period] = data_sensors[name]
 
         time.sleep(minutes_time * 60)
