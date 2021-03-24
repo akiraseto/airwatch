@@ -39,12 +39,15 @@ class MongoDB:
         if params['limit'] is None or params['limit'] == '' or params[
             'limit'] == 'NaN':
             if params['period'] == 'minute':
+                # 1日分
                 params['limit'] = round(60 * 24 / int(os.environ[
                                                           'BASIC_MINUTE']))
             elif params['period'] == 'hour':
-                params['limit'] = 24 * 7
+                # 4年分
+                params['limit'] = 4 * 365 * 24
             else:
-                params['limit'] = 120
+                # 10年分
+                params['limit'] = 10 * 12 * 4
         else:
             params['limit'] = int(params['limit'])
 

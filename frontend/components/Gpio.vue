@@ -17,7 +17,16 @@
     </b-list-group>
     <p class="small text-secondary">{{ latestData['timestamp'] }}</p>
 
-    <div id="gpio-graph"></div>
+    <b-card no-body>
+      <b-tabs pills card>
+        <b-tab title="Minute" active>
+          <div id="gpio-graph"></div>
+        </b-tab>
+        <b-tab title="Hour" @click="hourAPI">
+          <div id="gpio-hour-graph"></div>
+        </b-tab>
+      </b-tabs>
+    </b-card>
   </div>
 </template>
 
@@ -96,8 +105,6 @@ export default Vue.extend({
 
       graphLayout: {
         margin: { t: 50, b: 50 },
-        paper_bgcolor: 'rgba(245,246,249,1)',
-        plot_bgcolor: 'rgba(245,246,249,1)',
         showlegend: true,
         sizing: 'stretch',
         xaxis: {
@@ -166,6 +173,11 @@ export default Vue.extend({
     setInterval(() => {
       this.$repeatedAPI(this, 'gpio')
     }, this.intervalTime)
+  },
+  methods: {
+    hourAPI() {
+      this.$hourAPI(this, 'gpio')
+    },
   },
 })
 </script>

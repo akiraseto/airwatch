@@ -11,8 +11,16 @@
     </b-list-group>
     <p class="small text-secondary">{{ latestData['timestamp'] }}</p>
 
-    <div id="daikin-graph"></div>
-    <!-- todo:グラフ範囲変更する？(分、時、日、週間)-->
+    <b-card no-body>
+      <b-tabs pills card>
+        <b-tab title="Minute" active>
+          <div id="daikin-graph"></div>
+        </b-tab>
+        <b-tab title="Hour" @click="hourAPI">
+          <div id="daikin-hour-graph"></div>
+        </b-tab>
+      </b-tabs>
+    </b-card>
   </div>
 </template>
 
@@ -98,8 +106,6 @@ export default Vue.extend({
 
       graphLayout: {
         margin: { t: 50, b: 50 },
-        paper_bgcolor: 'rgba(245,246,249,1)',
-        plot_bgcolor: 'rgba(245,246,249,1)',
         showlegend: true,
         sizing: 'stretch',
         xaxis: {
@@ -155,8 +161,11 @@ export default Vue.extend({
       this.$repeatedAPI(this, 'daikin')
     }, this.intervalTime)
   },
-
-  //  todo:hourのグラフを描画できるボタン用意、limitなしで全データ
+  methods: {
+    hourAPI() {
+      this.$hourAPI(this, 'daikin')
+    },
+  },
   //  todo:コンパイルして、ラズパイのコンテナでSSRで動くか確認
 
   //  todo:光センサー追加？
