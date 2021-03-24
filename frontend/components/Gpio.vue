@@ -27,7 +27,7 @@ import Vue from 'vue'
 export default Vue.extend({
   data() {
     return {
-      title: 'GPIOセンサー',
+      title: 'GPIOラズパイ',
       apiUri: '/api/v1/gpio',
       monthAmount: (60 * 24 * 31) / 10,
       firstSetTime: 4000,
@@ -156,93 +156,16 @@ export default Vue.extend({
       }
     },
   },
-  async mounted() {
-    this.plotly = require('plotly.js-dist')
-    this.graphDiv = document.getElementById('gpio-graph')
-
-    const params = {} as any
-    if (this.$route.query.limit) {
-      params.limit = this.$route.query.limit
-    }
-
-    await this.$axios
-      .get(this.apiUri, {
-        params,
-      })
-      .then((res) => {
-        this.apiData = res.data
-      })
-      .catch((err) => {
-        console.error('API ERROR: ', err)
-      })
-
-    this.graphData.forEach((value) => {
-      value.x = this.apiData.timestamp
-      // @ts-ignore
-      value.y = this.apiData[value.apiKey]
-    })
-
-    this.graphLayout.xaxis.autorange = true
-
-    this.plotly.newPlot(this.graphDiv, this.graphData, this.graphLayout)
+  mounted() {
+    this.$initialAPI(this, 'gpio')
 
     setTimeout(() => {
-      this.repeatedAPI()
+      this.$repeatedAPI(this, 'gpio')
     }, this.firstSetTime)
 
     setInterval(() => {
-      this.repeatedAPI()
+      this.$repeatedAPI(this, 'gpio')
     }, this.intervalTime)
-  },
-  methods: {
-    repeatedAPI() {
-      console.log('repeat GPIO API')
-
-      this.$axios
-        .get(this.apiUri, {
-          params: {
-            limit: this.monthAmount,
-          },
-        })
-        .then((res) => {
-          if (
-            JSON.stringify(Object.entries(this.apiData).sort()) !==
-            JSON.stringify(Object.entries(res.data).sort())
-          ) {
-            console.log('GPIO Data is changed')
-
-            this.apiData = res.data
-
-            this.graphData.forEach((value) => {
-              value.x = this.apiData.timestamp
-              // @ts-ignore
-              value.y = this.apiData[value.apiKey]
-            })
-
-            this.graphLayout.xaxis.autorange = false
-            this.graphLayout.xaxis.range = [
-              this.$moment().add(-1, 'days').toDate(),
-              this.$moment().toDate(),
-            ]
-
-            let co2Max = this.graphLayout.yaxis4.range[1]
-            this.graphData.forEach(function (value: any) {
-              if (value.apiKey === 'co2') {
-                co2Max = value.y.reduce((a: number, b: number) => {
-                  return Math.max(a, b)
-                })
-              }
-            })
-            this.graphLayout.yaxis4.range[1] = co2Max
-
-            this.apiData = res.data
-            this.plotly.update(this.graphDiv, this.graphData, this.graphLayout)
-          }
-        })
-        .catch((err) => {
-          console.error('API ERROR: ', err)
-        })
-    },
   },
 })
 </script>

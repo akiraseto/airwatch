@@ -144,83 +144,16 @@ export default Vue.extend({
       }
     },
   },
-  async mounted() {
-    this.plotly = require('plotly.js-dist')
-    this.graphDiv = document.getElementById('daikin-graph')
-
-    const params = {} as any
-    if (this.$route.query.limit) {
-      params.limit = this.$route.query.limit
-    }
-
-    await this.$axios
-      .get(this.apiUri, {
-        params,
-      })
-      .then((res) => {
-        this.apiData = res.data
-      })
-      .catch((err) => {
-        console.error('API ERROR: ', err)
-      })
-
-    this.graphData.forEach((value) => {
-      value.x = this.apiData.timestamp
-      // @ts-ignore
-      value.y = this.apiData[value.apiKey]
-    })
-
-    this.graphLayout.xaxis.autorange = true
-
-    this.plotly.newPlot(this.graphDiv, this.graphData, this.graphLayout)
+  mounted() {
+    this.$initialAPI(this, 'daikin')
 
     setTimeout(() => {
-      this.repeatedAPI()
+      this.$repeatedAPI(this, 'daikin')
     }, this.firstSetTime)
 
     setInterval(() => {
-      this.repeatedAPI()
+      this.$repeatedAPI(this, 'daikin')
     }, this.intervalTime)
-  },
-  methods: {
-    repeatedAPI() {
-      console.log('repeat Daikin API')
-
-      this.$axios
-        .get(this.apiUri, {
-          params: {
-            limit: this.monthAmount,
-          },
-        })
-        .then((res) => {
-          if (
-            JSON.stringify(Object.entries(this.apiData).sort()) !==
-            JSON.stringify(Object.entries(res.data).sort())
-          ) {
-            console.log('Daikin Data is changed')
-
-            this.apiData = res.data
-
-            this.graphData.forEach((value) => {
-              value.x = this.apiData.timestamp
-              // @ts-ignore
-              value.y = this.apiData[value.apiKey]
-            })
-
-            this.graphLayout.xaxis.autorange = false
-            this.graphLayout.xaxis.range = [
-              this.$moment().add(-1, 'days').toDate(),
-              this.$moment().toDate(),
-            ]
-
-            this.apiData = res.data
-            this.plotly.update(this.graphDiv, this.graphData, this.graphLayout)
-          }
-        })
-        .catch((err) => {
-          console.error('API ERROR: ', err)
-        })
-    },
   },
 
   //  todo:hourのグラフを描画できるボタン用意、limitなしで全データ
