@@ -28,9 +28,14 @@ export default Vue.extend({
   data() {
     return {
       title: 'GPIOセンサー',
+      apiUri: '/api/v1/gpio',
+      monthAmount: (60 * 24 * 31) / 10,
+      firstSetTime: 4000,
+      intervalTime: 1000 * 60 * 10,
       plotly: {} as any,
 
-      gpioAPIData: {
+      graphDiv: null as any,
+      apiData: {
         temp: [],
         humi: [],
         press: [],
@@ -41,7 +46,7 @@ export default Vue.extend({
         timestamp: [],
       },
 
-      weatherGraphData: [
+      graphData: [
         {
           name: 'Temp',
           type: 'scatter',
@@ -71,7 +76,6 @@ export default Vue.extend({
           yaxis: 'y4',
           x: [],
           y: [],
-          hoverinfo: 'none',
           apiKey: 'co2',
         },
 
@@ -90,7 +94,7 @@ export default Vue.extend({
         },
       ],
 
-      daikinGraphLayout: {
+      graphLayout: {
         margin: { t: 50, b: 50 },
         paper_bgcolor: 'rgba(245,246,249,1)',
         plot_bgcolor: 'rgba(245,246,249,1)',
@@ -99,7 +103,10 @@ export default Vue.extend({
         xaxis: {
           domain: [0, 0.99],
           type: 'date',
+          autorange: false,
+          range: [] as object,
         },
+
         font: { size: 14 },
         yaxis: {
           title: 'Temp',
@@ -138,48 +145,104 @@ export default Vue.extend({
   computed: {
     latestData(): {} {
       return {
-        temp: this.gpioAPIData.temp.slice(-1)[0],
-        humi: this.gpioAPIData.humi.slice(-1)[0],
-        press: this.gpioAPIData.press.slice(-1)[0],
-        co2: this.gpioAPIData.co2.slice(-1)[0],
-        tvoc: this.gpioAPIData.tvoc.slice(-1)[0],
-        ethanol: this.gpioAPIData.ethanol.slice(-1)[0],
-        h2: this.gpioAPIData.h2.slice(-1)[0],
-        timestamp: this.gpioAPIData.timestamp.slice(-1)[0],
+        temp: this.apiData.temp.slice(-1)[0],
+        humi: this.apiData.humi.slice(-1)[0],
+        press: this.apiData.press.slice(-1)[0],
+        co2: this.apiData.co2.slice(-1)[0],
+        tvoc: this.apiData.tvoc.slice(-1)[0],
+        ethanol: this.apiData.ethanol.slice(-1)[0],
+        h2: this.apiData.h2.slice(-1)[0],
+        timestamp: this.apiData.timestamp.slice(-1)[0],
       }
     },
   },
   async mounted() {
     this.plotly = require('plotly.js-dist')
-    const gpioGraphDiv = document.getElementById('gpio-graph')
+    this.graphDiv = document.getElementById('gpio-graph')
+
+    const params = {} as any
+    if (this.$route.query.limit) {
+      params.limit = this.$route.query.limit
+    }
 
     await this.$axios
-      .get('/api/v1/gpio')
+      .get(this.apiUri, {
+        params,
+      })
       .then((res) => {
-        this.gpioAPIData = res.data
+        this.apiData = res.data
       })
       .catch((err) => {
         console.error('API ERROR: ', err)
       })
 
-    this.weatherGraphData.forEach((value) => {
-      value.x = this.gpioAPIData.timestamp
+    this.graphData.forEach((value) => {
+      value.x = this.apiData.timestamp
       // @ts-ignore
-      value.y = this.gpioAPIData[value.apiKey]
+      value.y = this.apiData[value.apiKey]
     })
 
-    this.plotly.newPlot(
-      gpioGraphDiv,
-      this.weatherGraphData,
-      this.daikinGraphLayout
-    )
+    this.graphLayout.xaxis.autorange = true
 
-    //  todo:追加でaxiosでminuteから4700個取得し、グラフを非同期に更新
-    //  todo:hourのグラフを描画できるボタン用意、limitなしで全データ
-    //  todo:ヘッダーの不要なボタン削除
-    //  todo:コンパイルして、ラズパイのコンテナでSSRで動くか確認
+    this.plotly.newPlot(this.graphDiv, this.graphData, this.graphLayout)
 
-    //  todo:光センサー追加する？
+    setTimeout(() => {
+      this.repeatedAPI()
+    }, this.firstSetTime)
+
+    setInterval(() => {
+      this.repeatedAPI()
+    }, this.intervalTime)
+  },
+  methods: {
+    repeatedAPI() {
+      console.log('repeat GPIO API')
+
+      this.$axios
+        .get(this.apiUri, {
+          params: {
+            limit: this.monthAmount,
+          },
+        })
+        .then((res) => {
+          if (
+            JSON.stringify(Object.entries(this.apiData).sort()) !==
+            JSON.stringify(Object.entries(res.data).sort())
+          ) {
+            console.log('GPIO Data is changed')
+
+            this.apiData = res.data
+
+            this.graphData.forEach((value) => {
+              value.x = this.apiData.timestamp
+              // @ts-ignore
+              value.y = this.apiData[value.apiKey]
+            })
+
+            this.graphLayout.xaxis.autorange = false
+            this.graphLayout.xaxis.range = [
+              this.$moment().add(-1, 'days').toDate(),
+              this.$moment().toDate(),
+            ]
+
+            let co2Max = this.graphLayout.yaxis4.range[1]
+            this.graphData.forEach(function (value: any) {
+              if (value.apiKey === 'co2') {
+                co2Max = value.y.reduce((a: number, b: number) => {
+                  return Math.max(a, b)
+                })
+              }
+            })
+            this.graphLayout.yaxis4.range[1] = co2Max
+
+            this.apiData = res.data
+            this.plotly.update(this.graphDiv, this.graphData, this.graphLayout)
+          }
+        })
+        .catch((err) => {
+          console.error('API ERROR: ', err)
+        })
+    },
   },
 })
 </script>

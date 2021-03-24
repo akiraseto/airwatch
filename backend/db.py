@@ -36,12 +36,13 @@ class MongoDB:
         """
         if params['period'] is None or params['period'] == '':
             params['period'] = 'minute'
-        if params['limit'] is None or params['limit'] == '':
+        if params['limit'] is None or params['limit'] == '' or params[
+            'limit'] == 'NaN':
             if params['period'] == 'minute':
                 params['limit'] = round(60 * 24 / int(os.environ[
                                                           'BASIC_MINUTE']))
             elif params['period'] == 'hour':
-                params['limit'] = 168
+                params['limit'] = 24 * 7
             else:
                 params['limit'] = 120
         else:
