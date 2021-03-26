@@ -11,6 +11,7 @@ RUN apt-get install -y  --no-install-recommends \
 #RUN pip3 install --upgrade pip
 RUN pip3 install flask
 RUN pip3 install pymongo
+RUN pip3 install flask-cors
 
 WORKDIR /root/backend
 ENV PYTHONPATH /root/backend
