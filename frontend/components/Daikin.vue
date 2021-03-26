@@ -31,7 +31,6 @@ export default Vue.extend({
   data() {
     return {
       title: 'ダイキン',
-      apiUri: '/api/v1/daikin',
       monthAmount: (60 * 24 * 31) / 10,
       firstSetTime: 4000,
       intervalTime: 1000 * 60 * 10,
@@ -166,8 +165,5 @@ export default Vue.extend({
       this.$hourAPI(this, 'daikin')
     },
   },
-  //  todo:コンパイルして、ラズパイのコンテナでSSRで動くか確認
-
-  //  todo:光センサー追加？
 })
 </script>

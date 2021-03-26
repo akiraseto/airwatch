@@ -8,10 +8,7 @@ RUN apt-get install -y  --no-install-recommends \
     python3-numpy \
     python3-pandas
 
-#RUN pip3 install --upgrade pip
-RUN pip3 install flask
-RUN pip3 install pymongo
-RUN pip3 install flask-cors
+RUN pip3 install flask pymongo flask-cors
 
 WORKDIR /root/backend
 ENV PYTHONPATH /root/backend

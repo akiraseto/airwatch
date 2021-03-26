@@ -19,8 +19,9 @@ Vue.prototype.$initialAPI = async (that: any, apiName: string) => {
     params.limit = that.$route.query.limit
   }
 
+  const apiUri = `http://${location.host}:5000/v1/${apiName}`
   await that.$axios
-    .get(that.apiUri, {
+    .get(apiUri, {
       params,
     })
     .then((res: any) => {

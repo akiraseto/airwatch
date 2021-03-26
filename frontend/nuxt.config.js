@@ -1,4 +1,5 @@
 export default {
+  ssr: false,
   server: {
     host: '0.0.0.0', // デフォルト: localhost
   },
@@ -20,7 +21,11 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [
+    { src: '~/plugins/repeatedAPI' },
+    { src: '~/plugins/initialAPI' },
+    { src: '~/plugins/hourAPI' },
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -44,20 +49,22 @@ export default {
   // moment: {
   //   locales: ['ja'],
   // },
-
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {
-    proxy: true,
-  },
-
-  proxy: {
-    '/api/': {
-      // target: 'http://localhost:5000',
-      target: 'http://192.168.3.62:5000',
-      pathRewrite: { '^/api/': '' },
-    },
-  },
+  // axios: {
+  //   proxy: true,
+  // },
+  // proxy: {
+  //   '/api/': {
+  //     // target: 'http://localhost:5000',
+  //     pathRewrite: { '^/api/': '' },
+  //   },
+  // },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    babel: {
+      babelrc: false,
+      compact: false,
+    },
+  },
 }

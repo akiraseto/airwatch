@@ -26,8 +26,9 @@ Vue.prototype.$hourAPI = async (that: any, apiName: string) => {
   }
 
   let hourApiData = { ...that.apiData }
+  const apiUri = `http://${location.host}:5000/v1/${apiName}`
   await that.$axios
-    .get(that.apiUri, {
+    .get(apiUri, {
       params,
     })
     .then((res: any) => {

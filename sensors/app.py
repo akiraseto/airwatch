@@ -25,11 +25,10 @@ if __name__ == '__main__':
     ]
 
     periods = ['minute', 'hour', 'day', 'week']
-    delta_list = {}
-    delta_list['minute'] = datetime.timedelta(minutes=1)
-    delta_list['hour'] = datetime.timedelta(hours=1)
-    delta_list['day'] = datetime.timedelta(days=1)
-    delta_list['week'] = datetime.timedelta(weeks=1)
+    delta_list = {'minute': datetime.timedelta(minutes=1),
+                  'hour': datetime.timedelta(hours=1),
+                  'day': datetime.timedelta(days=1),
+                  'week': datetime.timedelta(weeks=1)}
 
     # 最新DBデータ取得
     latest_data = defaultdict(dict)

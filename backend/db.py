@@ -37,7 +37,7 @@ class MongoDB:
         if params['period'] is None or params['period'] == '':
             params['period'] = 'minute'
         if params['limit'] is None or params['limit'] == '' or params[
-            'limit'] == 'NaN':
+                'limit'] == 'NaN':
             if params['period'] == 'minute':
                 # 1日分
                 params['limit'] = round(60 * 24 / int(os.environ[

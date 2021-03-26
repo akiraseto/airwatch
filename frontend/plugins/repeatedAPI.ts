@@ -9,8 +9,9 @@ declare module 'vue/types/vue' {
 Vue.prototype.$repeatedAPI = (that: any, apiName: string) => {
   console.log(`repeat ${apiName.toUpperCase()} API`)
 
+  const apiUri = `http://${location.host}:5000/v1/${apiName}`
   that.$axios
-    .get(that.apiUri, {
+    .get(apiUri, {
       params: {
         limit: that.monthAmount,
       },

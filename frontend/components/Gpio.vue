@@ -37,7 +37,6 @@ export default Vue.extend({
   data() {
     return {
       title: 'GPIOラズパイ',
-      apiUri: '/api/v1/gpio',
       monthAmount: (60 * 24 * 31) / 10,
       firstSetTime: 4000,
       intervalTime: 1000 * 60 * 10,
