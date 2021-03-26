@@ -18,7 +18,7 @@ class Dht(MongoDB):
         super().__init__()
 
         # センサー
-        self.PIN = 20
+        self.PIN = 4
 
         # MongoDB
         db_name = 'dht'
