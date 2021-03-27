@@ -10,6 +10,7 @@ services:
       - ./frontend/dist:/usr/share/nginx/html
     depends_on:
       - backend
+    restart: always
 
   backend:
     build: backend
@@ -22,6 +23,7 @@ services:
       - container.env
     depends_on:
       - db
+    restart: always
 
   sensors:
     build: sensors
@@ -36,15 +38,16 @@ services:
     privileged: true
     depends_on:
       - db
+    restart: always
 
   db:
     image: andresvidal/rpi3-mongodb3
     container_name: db
     ports:
       - "27017:27017"
-      - "28017:28017"
     volumes:
       - ./container_data/configdb:/data/configdb
       - ./container_data/db:/data/db
     command: >
       bash -c "rm /data/db/mongod.lock && mongod"
+    restart: always
