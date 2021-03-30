@@ -24,7 +24,6 @@ if __name__ == '__main__':
         Sgp()
     ]
 
-    periods = ['minute', 'hour', 'day', 'week']
     delta_list = {'minute': datetime.timedelta(minutes=1),
                   'hour': datetime.timedelta(hours=1),
                   'day': datetime.timedelta(days=1),
@@ -32,7 +31,7 @@ if __name__ == '__main__':
 
     # 最新DBデータ取得
     latest_data = defaultdict(dict)
-    for period in periods:
+    for period in delta_list:
         for sensor in sensors:
             name = sensor.__str__()
             latest_data[name][period] = sensor.find_latest(period)
@@ -47,12 +46,12 @@ if __name__ == '__main__':
             data_sensors[name] = data
             logging.info('{}:{}'.format(name, data))
 
-        for period in periods:
+        for period, delta in delta_list.items():
             for sensor in sensors:
                 name = sensor.__str__()
                 if latest_data[name][period] is None or \
                         now >= latest_data[name][period]['timestamp'] \
-                        + delta_list[period]:
+                        + delta:
                     if data_sensors[name] is not None:
                         sensor.insert_data(period, data_sensors[name])
                         latest_data[name][period] = data_sensors[name]
